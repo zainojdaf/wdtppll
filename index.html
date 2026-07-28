@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WDTPPLL</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700">
+<style>
+:root{
+  --color-text:#444446; --color-text-accent:#222; --color-border:lightgray; --color-border-broken:#555;
+  --color-bg:#fff; --color-link:#0881c6; --color-link-dark:#f77e39;
+  --color-pc-button-bg:#0881c6; --color-pc-button-bg-hover:#076696; --color-pc-button-bg-click:#055075; --color-pc-button-text:#fff;
+  --color-imp-button-bg:#ff003c; --color-imp-button-bg-hover:#ff2457; --color-imp-button-bg-click:#f21347;
+  --color-unobstrusive-button-bg:#fff; --color-unobstrusive-button-bg-hover:#ddd; --color-unobstrusive-button-bg-click:#aaa; --color-unobstrusive-button-text:#444446;
+  --color-ok-bg:#eeffe4; --color-ok-border:#a8ff93; --color-ok-text:#074d07;
+  --color-warn-bg:#fffadd; --color-warn-border:#e0e37b; --color-warn-text:#4d4707;
+  --color-error-bg:#fdd; --color-error-border:#ff9393; --color-error-text:#4d0707;
+  --color-consider-bg:#D8EFF3; --color-consider-text:#326067;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;margin:0;}
+body{font-family:"Montserrat",sans-serif;color:var(--color-text);background:#f4f6f8;display:flex;flex-direction:column;}
+a{color:var(--color-text-accent);text-decoration:none;cursor:pointer;}
+h1,h2,h3,h4{text-align:center;}
+h1{font-size:2.2em;margin:.6em 0;}
+h2{font-size:1.5em;margin:.5em 0;}
+h3{font-size:1em;margin:.3em 0;}
+ul{list-style:none;padding:0;margin:0;}
+.center{max-width:1100px;margin:0 auto;padding:0 20px;width:100%;}
+.hover{transition:all .3s ease;}
+.clickable{cursor:pointer;}
+
+/* nav */
+header nav{width:100%;height:70px;display:flex;align-items:center;position:sticky;top:0;background:#fff;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.08);font-weight:600;}
+header nav .center{display:flex;align-items:center;height:100%;}
+.nav-logo{font-size:1.3em;font-weight:700;color:var(--color-pc-button-bg);margin-right:auto;letter-spacing:.5px;}
+.nav-group{display:flex;height:100%;}
+.nav-item{padding:0 18px;display:flex;align-items:center;cursor:pointer;height:100%;font-size:.95em;color:#444;border-bottom:3px solid transparent;}
+.nav-item.active,.nav-item:hover{border-bottom:3px solid var(--color-pc-button-bg);color:var(--color-pc-button-bg);}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.role-badge{font-size:.7em;padding:2px 8px;border-radius:10px;background:var(--color-pc-button-bg);color:#fff;text-transform:uppercase;}
+.role-badge.owner{background:var(--color-imp-button-bg);}
+.role-badge.mod{background:#f0a500;}
+
+/* buttons */
+.button{padding:10px 20px;text-align:center;border:none;cursor:pointer;display:inline-flex;justify-content:center;align-items:center;font-family:inherit;font-size:.95em;font-weight:600;border-radius:2px;}
+.blue{background:var(--color-pc-button-bg);color:#fff;}
+.blue:hover{background:var(--color-pc-button-bg-hover);}
+.red{background:var(--color-imp-button-bg);color:#fff;}
+.red:hover{background:var(--color-imp-button-bg-hover);}
+.white{background:#fff;color:var(--color-text);border:1px solid var(--color-border);}
+.white:hover{background:#eee;}
+.small{padding:5px 12px;font-size:.85em;}
+
+/* panels */
+.panel{background:#fff;padding:20px;margin:20px 0;box-shadow:0 0 20px rgba(0,0,0,.07);border-radius:3px;}
+.underlined{border-bottom:2px solid var(--color-border);padding-bottom:8px;margin-bottom:12px;}
+
+.container{display:flex;gap:20px;flex-wrap:wrap;padding:20px 0;}
+.left{flex:3;min-width:300px;}
+.right{flex:1;min-width:260px;}
+
+/* demon rows */
+.demon-row{display:flex;gap:15px;align-items:center;padding:14px;background:#fff;box-shadow:0 0 12px rgba(0,0,0,.06);border-radius:3px;}
+.demon-thumb{width:120px;height:68px;flex-shrink:0;border-radius:3px;background:#111 center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.4em;}
+.demon-info h2{text-align:left;margin:0 0 2px 0;font-size:1.1em;}
+.demon-info h3{text-align:left;margin:0;font-weight:400;font-size:.85em;color:#666;}
+.demon-points{font-size:.8em;color:#888;margin-top:4px;}
+.demon-actions{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;}
+
+/* forms */
+.form-input{display:flex;flex-direction:column;margin:10px 0;text-align:left;}
+.form-input label{font-size:.8em;font-weight:600;margin-bottom:4px;color:#555;}
+input[type=text],input[type=password],input[type=number],input[type=url],select,textarea{
+  border:1px solid var(--color-border);padding:8px;font-family:inherit;font-size:.95em;background:#fff;border-radius:2px;
+}
+.error-text{color:var(--color-imp-button-bg);font-size:.8em;min-height:1em;}
+.info-box{padding:10px;border-radius:2px;margin:10px 0;font-size:.9em;}
+.info-box.ok{background:var(--color-ok-bg);color:var(--color-ok-text);border:1px solid var(--color-ok-border);}
+.info-box.err{background:var(--color-error-bg);color:var(--color-error-text);border:1px solid var(--color-error-border);}
+.info-box.warn{background:var(--color-warn-bg);color:var(--color-warn-text);border:1px solid var(--color-warn-border);}
+
+table{width:100%;border-collapse:collapse;}
+th,td{padding:8px 10px;text-align:left;font-size:.9em;}
+th{background:var(--color-pc-button-bg);color:#fff;}
+tr:nth-child(even){background:#f2f6fb;}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75em;font-weight:600;}
+.badge.submitted{background:var(--color-warn-bg);color:var(--color-warn-text);}
+.badge.approved{background:var(--color-ok-bg);color:var(--color-ok-text);}
+.badge.rejected{background:var(--color-error-bg);color:var(--color-error-text);}
+
+.tab-hidden{display:none;}
+
+.leader-rank{font-weight:700;width:40px;}
+.leader-rank.gold{color:#d4af37;}
+.leader-rank.silver{color:#a8a9ad;}
+.leader-rank.bronze{color:#cd7f32;}
+
+footer{margin-top:auto;background:#222;color:#ccc;padding:25px 0;font-size:.85em;text-align:center;}
+footer a{color:#8cc8ec;}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;max-width:480px;width:90%;padding:20px;border-radius:4px;max-height:85vh;overflow:auto;}
+
+.editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 15px;}
+@media(max-width:600px){.editor-grid{grid-template-columns:1fr;}}
+.small-note{font-size:.75em;color:#888;}
+.flex{display:flex;gap:8px;flex-wrap:wrap;}
+</style>
+</head>
+<body>
+
+<header>
+<nav>
+  <div class="center">
+    <div class="nav-logo"><i class="fa-solid fa-skull"></i>&nbsp;WDTPPLL</div>
+    <div class="nav-group">
+      <div class="nav-item" data-tab="demonlist">Demon List</div>
+      <div class="nav-item" data-tab="statsviewer">Stats Viewer</div>
+      <div class="nav-item" data-tab="submit">Submit Record</div>
+      <div class="nav-item tab-hidden" id="nav-mod" data-tab="mod">Mod Panel</div>
+    </div>
+    <div class="nav-right">
+      <div id="nav-guest" class="flex">
+        <div class="nav-item white button small" data-tab="login">Login</div>
+        <div class="nav-item blue button small" data-tab="register">Register</div>
+      </div>
+      <div id="nav-user" class="flex tab-hidden" style="align-items:center;">
+        <span id="nav-username" class="nav-item" data-tab="account" style="cursor:pointer;font-weight:700;"></span>
+        <span id="nav-role" class="role-badge"></span>
+        <div class="button white small" id="logout-btn">Logout</div>
+      </div>
+    </div>
+  </div>
+</nav>
+</header>
+
+<main class="center" style="flex:1;width:100%;">
+
+<!-- DEMON LIST -->
+<section id="tab-demonlist">
+  <h1>The WDTPPLL</h1>
+  <p style="text-align:center;color:#666;">the web dashers theoretically physically possible levels list — for the game <a href="https://webdashers.com" target="_blank" class="link">Web Dashers</a></p>
+  <div class="container">
+    <div class="left" id="demon-list-container"></div>
+    <aside class="right">
+      <div class="panel">
+        <div class="underlined"><h2>List Team</h2></div>
+        <p><b>Owner:</b> <span id="team-owner"></span></p>
+        <p><b>Moderators:</b></p>
+        <ul id="team-mods"></ul>
+      </div>
+      <div class="panel">
+        <div class="underlined"><h2>How points work</h2></div>
+        <p style="font-size:.85em;">Each level has a point value and a percentage requirement, set by list moderators. Submit a record meeting the required % (or a full completion) — once a moderator approves it, those points are added to your leaderboard total.</p>
+      </div>
+      <div class="panel">
+        <div class="underlined"><h2>Submit a Record</h2></div>
+        <p style="font-size:.85em;">Beat one of these levels? Submit your run for review.</p>
+        <div class="button blue" data-tab="submit" style="width:100%;">Submit a record!</div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section id="tab-level" class="tab-hidden">
+  <div class="panel">
+    <div class="underlined"><h1 id="level-detail-title"></h1></div>
+    <div id="level-detail-video" style="text-align:center;margin:15px 0;"></div>
+    <p id="level-detail-meta" style="text-align:center;color:#666;"></p>
+    <div class="underlined pad"><h2>Records</h2></div>
+    <table style="width:100%;">
+      <thead><tr><th style="text-align:left;">Player</th><th style="text-align:left;">%</th><th style="text-align:left;">Video</th></tr></thead>
+      <tbody id="level-detail-records"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="tab-profile" class="tab-hidden">
+  <div class="panel">
+    <div class="underlined"><h1 id="profile-username"></h1></div>
+    <p id="profile-role" style="text-align:center;"></p>
+    <div class="editor-grid" style="text-align:center;margin:15px 0;">
+      <div><b id="profile-points">0</b><br><span class="small-note">Points</span></div>
+      <div><b id="profile-count">0</b><br><span class="small-note">Records</span></div>
+    </div>
+    <div class="underlined pad"><h2>Completed Levels</h2></div>
+    <ul id="profile-records"></ul>
+  </div>
+</section>
+
+<!-- STATS VIEWER -->
+<section id="tab-statsviewer" class="tab-hidden">
+  <h1>Stats Viewer</h1>
+  <p style="text-align:center;color:#666;">Leaderboard of every player with an approved record.</p>
+  <div class="panel">
+    <table>
+      <thead><tr><th>#</th><th>Player</th><th>Points</th><th>Hardest completed</th><th>Completions</th></tr></thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+    <p id="leaderboard-empty" class="small-note" style="text-align:center;"></p>
+  </div>
+</section>
+
+<!-- SUBMIT RECORD -->
+<section id="tab-submit" class="tab-hidden">
+  <h1>Submit a Record</h1>
+  <div class="panel" style="max-width:500px;margin:20px auto;">
+    <div id="submit-need-login" class="info-box warn tab-hidden">You need an account to submit records. <span class="link" data-tab="login">Log in</span> or <span class="link" data-tab="register">register</span>.</div>
+    <form id="submission-form">
+      <div class="form-input">
+        <label>Level</label>
+        <select id="submit-demon" required></select>
+      </div>
+      <div class="form-input">
+        <label>Progress / Percentage achieved (%)</label>
+        <input type="number" id="submit-progress" min="1" max="100" required>
+      </div>
+      <div class="form-input">
+        <label>Video proof (URL)</label>
+        <input type="url" id="submit-video" placeholder="https://youtu.be/..." required>
+      </div>
+      <p class="error-text" id="submit-error"></p>
+      <div id="submit-success" class="info-box ok tab-hidden"></div>
+      <button type="submit" class="button blue" style="width:100%;">Submit Record</button>
+    </form>
+  </div>
+</section>
+
+<!-- LOGIN -->
+<section id="tab-login" class="tab-hidden">
+  <div class="panel" style="max-width:400px;margin:40px auto;">
+    <h2>Login</h2>
+    <form id="login-form">
+      <div class="form-input"><label>Username</label><input type="text" id="login-username" required></div>
+      <div class="form-input"><label>Password</label><input type="password" id="login-password" required></div>
+      <p class="error-text" id="login-error"></p>
+      <button type="submit" class="button blue" style="width:100%;">Login</button>
+    </form>
+  </div>
+</section>
+
+<!-- REGISTER -->
+<section id="tab-register" class="tab-hidden">
+  <div class="panel" style="max-width:400px;margin:40px auto;">
+    <h2>Register</h2>
+    <form id="register-form">
+      <div class="form-input"><label>Username</label><input type="text" id="register-username" required minlength="3" maxlength="30"></div>
+      <div class="form-input"><label>Password</label><input type="password" id="register-password" required minlength="4"></div>
+      <p class="error-text" id="register-error"></p>
+      <button type="submit" class="button blue" style="width:100%;">Create Account</button>
+    </form>
+  </div>
+</section>
+
+<!-- ACCOUNT -->
+<section id="tab-account" class="tab-hidden">
+  <div class="panel" style="max-width:500px;margin:40px auto;">
+    <h2>My Account</h2>
+    <p><b>Username:</b> <span id="acc-username"></span></p>
+    <p><b>Role:</b> <span id="acc-role"></span></p>
+    <p><b>Total points:</b> <span id="acc-points"></span></p>
+    <div class="underlined"><h3>My submissions</h3></div>
+    <table>
+      <thead><tr><th>Level</th><th>%</th><th>Status</th></tr></thead>
+      <tbody id="acc-submissions"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MOD PANEL -->
+<section id="tab-mod" class="tab-hidden">
+  <h1>Mod Panel</h1>
+  <div class="container">
+    <div class="left">
+      <div class="panel">
+        <div class="underlined flex" style="justify-content:space-between;"><h2>Submission Queue</h2></div>
+        <table>
+          <thead><tr><th>Player</th><th>Level</th><th>%</th><th>Video</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="queue-body"></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="underlined flex" style="justify-content:space-between;">
+          <h2>Manage Levels</h2>
+          <div class="button blue small" id="add-demon-btn">+ Add Level</div>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Name</th><th>Points</th><th>Req. %</th><th></th></tr></thead>
+          <tbody id="manage-demons-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <aside class="right" id="owner-panel-wrap">
+      <div class="panel" id="owner-panel">
+        <div class="underlined"><h2>Owner: Manage Roles</h2></div>
+        <p class="small-note">Owner only. Grant/revoke List Moderator status, or hand over the Owner role.</p>
+        <div class="form-input"><label>Username</label><input type="text" id="role-username"></div>
+        <div class="flex">
+          <div class="button blue small" id="make-mod-btn">Make Moderator</div>
+          <div class="button white small" id="remove-mod-btn">Remove Moderator</div>
+        </div>
+        <p class="small-note" style="margin-top:10px;">All users:</p>
+        <ul id="all-users-list" style="font-size:.85em;"></ul>
+      </div>
+    </aside>
+  </div>
+</section>
+
+</main>
+
+<!-- Demon edit modal -->
+<div class="modal-overlay" id="demon-modal">
+  <div class="modal">
+    <h2 id="demon-modal-title">Edit Level</h2>
+    <form id="demon-form">
+      <input type="hidden" id="dm-id">
+      <div class="editor-grid">
+        <div class="form-input"><label>Name</label><input type="text" id="dm-name" required></div>
+        <div class="form-input"><label>Position (#)</label><input type="number" id="dm-position" min="1" required></div>
+        <div class="form-input"><label>Publisher</label><input type="text" id="dm-publisher" required></div>
+        <div class="form-input"><label>Video URL</label><input type="url" id="dm-video"></div>
+        <div class="form-input"><label>Points for completion</label><input type="number" id="dm-points" min="0" step="0.1" required></div>
+        <div class="form-input"><label>Required % for points</label><input type="number" id="dm-reqpercent" min="1" max="100" required></div>
+      </div>
+      <p class="error-text" id="demon-form-error"></p>
+      <div class="flex" style="justify-content:flex-end;margin-top:10px;">
+        <div class="button white" id="demon-modal-cancel">Cancel</div>
+        <div class="button red tab-hidden" id="demon-modal-delete">Delete</div>
+        <button type="submit" class="button blue">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer>
+  <div class="center">
+    WDTPPLL — the web dashers theoretically physically possible levels list<br>
+    A fan-made demonlist for <a href="https://webdashers.com" target="_blank">Web Dashers</a>, in the style of pointercrate.<br>
+
+  </div>
+</footer>
+
+<script>
+
+const OWNER_USERNAME = "xenon";
+const AUTO_MOD_USERNAME = "zainojdaf";
+const SHARED = true;
+const PERSONAL = false;
+
+async function loadShared(key, fallback){
+  try{ const r = await window.storage.get(key, SHARED); return r ? JSON.parse(r.value) : fallback; }
+  catch(e){ return fallback; }
+}
+async function saveShared(key, value){
+  try{ await window.storage.set(key, JSON.stringify(value), SHARED); }catch(e){ console.error(e); }
+}
+async function loadPersonal(key, fallback){
+  try{ const r = await window.storage.get(key, PERSONAL); return r ? JSON.parse(r.value) : fallback; }
+  catch(e){ return fallback; }
+}
+async function savePersonal(key, value){
+  try{ await window.storage.set(key, JSON.stringify(value), PERSONAL); }catch(e){ console.error(e); }
+}
+
+function simpleHash(str){
+  let h = 0;
+  for(let i=0;i<str.length;i++){ h = (Math.imul(31,h) + str.charCodeAt(i))|0; }
+  return h.toString(36);
+}
+
+let DEMONS = [];
+let USERS = {};
+let RECORDS = [];
+let currentUser = null;
+
+const DEFAULT_DEMONS = [
+  {id:1,name:"WDTPPLL LEVEL",position:1,publisher:"totallynotxenon",video:"https://youtu.be/XNtLIa2HZio",points:50,reqPercent:100},
+  {id:2,name:"The Shadow Realm",position:2,publisher:"Lollipop",video:"https://www.youtube.com/watch?v=SkVZY9M9-5Q",points:40,reqPercent:100,wr:0},
+  {id:3,name:"SONciety",position:3,publisher:"Lollipop",video:"https://www.youtube.com/watch?v=sX_mG91Z6JQ",points:32,reqPercent:100,wr:7},
+  {id:4,name:"Bloody Knuckles II",position:4,publisher:"alxray07",video:"https://www.youtube.com/watch?v=rVffl3xIjIk",points:25,reqPercent:100,wr:0},
+  {id:5,name:"SONlent circles",position:5,publisher:"picreator",video:"https://www.youtube.com/watch?v=K3RjIuEO-F4",points:20,reqPercent:100,wr:16},
+  {id:6,name:"Zoink aggressively gooned on furry paws",position:6,publisher:"helloguy0",video:"https://www.youtube.com/watch?v=NkFyC6-Vsyc",points:15,reqPercent:100,wr:4},
+];
+
+async function init(){
+  DEMONS = await loadShared("wdtppll:demons", null);
+  if(!DEMONS){ DEMONS = DEFAULT_DEMONS; await saveShared("wdtppll:demons", DEMONS); }
+
+  USERS = await loadShared("wdtppll:users", null);
+  if(!USERS){ USERS = {}; await saveShared("wdtppll:users", USERS); }
+
+  RECORDS = await loadShared("wdtppll:records", null);
+  if(!RECORDS){ RECORDS = []; await saveShared("wdtppll:records", RECORDS); }
+
+  const session = await loadPersonal("wdtppll:session", null);
+  if(session && USERS[session]) currentUser = session;
+
+  renderAll();
+  switchTab("demonlist");
+}
+
+function roleOf(username){
+  if(!username) return null;
+  if(username.toLowerCase() === OWNER_USERNAME.toLowerCase()) return "owner";
+  if(username.toLowerCase() === AUTO_MOD_USERNAME.toLowerCase()) return "mod";
+  const u = USERS[username];
+  return u ? (u.role || "user") : "user";
+}
+function isModOrOwner(username){
+  const r = roleOf(username);
+  return r === "mod" || r === "owner";
+}
+function isOwner(username){ return roleOf(username) === "owner"; }
+
+document.querySelectorAll("[data-tab]").forEach(el=>{
+  el.addEventListener("click", ()=> switchTab(el.dataset.tab));
+});
+function switchTab(tab){
+  document.querySelectorAll("main > section").forEach(s=>s.classList.add("tab-hidden"));
+  const target = document.getElementById("tab-"+tab);
+  if(target) target.classList.remove("tab-hidden");
+  document.querySelectorAll(".nav-item[data-tab]").forEach(el=>el.classList.remove("active"));
+  document.querySelectorAll('.nav-item[data-tab="'+tab+'"]').forEach(el=>el.classList.add("active"));
+  if(tab==="statsviewer") renderLeaderboard();
+  if(tab==="submit") renderSubmitForm();
+  if(tab==="account") renderAccount();
+  if(tab==="mod") renderModPanel();
+}
+
+function renderAll(){
+  renderNavAuth();
+  renderDemonList();
+  renderTeamPanel();
+}
+
+function ytThumb(url){
+  if(!url) return null;
+  const m = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
+  return m ? `https://img.youtube.com/vi/${m[1]}/mqdefault.jpg` : null;
+}
+function renderDemonList(){
+  const container = document.getElementById("demon-list-container");
+  container.innerHTML = "";
+  const sorted = [...DEMONS].sort((a,b)=>a.position-b.position);
+  for(const d of sorted){
+    const row = document.createElement("div");
+    row.className = "demon-row";
+    row.innerHTML = `
+      <div class="demon-thumb" style="${ytThumb(d.video) ? `background-image:url('${ytThumb(d.video)}')` : ""}">${ytThumb(d.video) ? "" : `<i class="fa-solid fa-skull"></i>`}</div>
+      <div class="demon-info">
+        <h2>#${d.position} – ${escapeHtml(d.name)}</h2>
+        <h3>published by ${escapeHtml(d.publisher)}</h3>
+        <div class="demon-points">${d.points} points for ${d.reqPercent}%+ ${d.video ? `· <a class="link" href="${escapeAttr(d.video)}" target="_blank">watch</a>`:""}</div>
+      </div>
+    `;
+    container.appendChild(row);
+  }
+}
+
+function renderTeamPanel(){
+  document.getElementById("team-owner").textContent = OWNER_USERNAME;
+  const modsUl = document.getElementById("team-mods");
+  modsUl.innerHTML = "";
+  const mods = Object.entries(USERS).filter(([u,info])=>info.role==="mod");
+  if(mods.length===0) modsUl.innerHTML = "<li class='small-note'>None yet</li>";
+  for(const [u] of mods){
+    const li = document.createElement("li");
+    li.textContent = u;
+    modsUl.appendChild(li);
+  }
+}
+
+function renderLeaderboard(){
+  const tbody = document.getElementById("leaderboard-body");
+  tbody.innerHTML = "";
+  const totals = {};
+  for(const r of RECORDS){
+    if(r.status !== "approved") continue;
+    const d = DEMONS.find(x=>x.id===r.demonId);
+    if(!d) continue;
+    if(r.percent < d.reqPercent) continue;
+    if(!totals[r.username]) totals[r.username] = {points:0, hardest:null, count:0};
+    totals[r.username].points += d.points;
+    totals[r.username].count += 1;
+    if(!totals[r.username].hardest || d.position < totals[r.username].hardest.position){
+      totals[r.username].hardest = d;
+    }
+  }
+  const arr = Object.entries(totals).map(([user,info])=>({user,...info}))
+    .sort((a,b)=>b.points-a.points);
+
+  document.getElementById("leaderboard-empty").textContent = arr.length ? "" : "No approved records yet — be the first!";
+
+  arr.forEach((row,i)=>{
+    const tr = document.createElement("tr");
+    let rankClass = i===0?"gold":i===1?"silver":i===2?"bronze":"";
+    tr.innerHTML = `<td class="leader-rank ${rankClass}">${i+1}</td>
+      <td>${escapeHtml(row.user)}</td>
+      <td>${row.points}</td>
+      <td>${row.hardest ? escapeHtml(row.hardest.name) : "-"}</td>
+      <td>${row.count}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderSubmitForm(){
+  const needLogin = document.getElementById("submit-need-login");
+  const form = document.getElementById("submission-form");
+  if(!currentUser){
+    needLogin.classList.remove("tab-hidden");
+    form.classList.add("tab-hidden");
+  } else {
+    needLogin.classList.add("tab-hidden");
+    form.classList.remove("tab-hidden");
+  }
+  const select = document.getElementById("submit-demon");
+  select.innerHTML = "";
+  [...DEMONS].sort((a,b)=>a.position-b.position).forEach(d=>{
+    const opt = document.createElement("option");
+    opt.value = d.id;
+    opt.textContent = `#${d.position} - ${d.name}`;
+    select.appendChild(opt);
+  });
+}
+
+document.getElementById("submission-form").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const errorEl = document.getElementById("submit-error");
+  const successEl = document.getElementById("submit-success");
+  errorEl.textContent = ""; successEl.classList.add("tab-hidden");
+  if(!currentUser){ errorEl.textContent = "You must be logged in."; return; }
+  const demonId = parseInt(document.getElementById("submit-demon").value);
+  const percent = parseInt(document.getElementById("submit-progress").value);
+  const video = document.getElementById("submit-video").value.trim();
+  if(!percent || percent<1 || percent>100){ errorEl.textContent = "Enter a valid percentage (1-100)."; return; }
+  if(!video){ errorEl.textContent = "Video proof is required."; return; }
+
+  const dup = RECORDS.find(r=>r.demonId===demonId && r.username===currentUser && r.status!=="rejected");
+  if(dup){ errorEl.textContent = "You already have a pending or approved submission for this level."; return; }
+
+  const rec = { id: Date.now(), demonId, username: currentUser, percent, video, status:"submitted" };
+  RECORDS.push(rec);
+  await saveShared("wdtppll:records", RECORDS);
+  successEl.textContent = "Submitted! A list moderator will review it soon.";
+  successEl.classList.remove("tab-hidden");
+  e.target.reset();
+});
+
+document.getElementById("register-form").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const errorEl = document.getElementById("register-error");
+  errorEl.textContent = "";
+  const username = document.getElementById("register-username").value.trim();
+  const password = document.getElementById("register-password").value;
+  if(!username || !password){ errorEl.textContent = "Fill out all fields."; return; }
+  if(USERS[username]){ errorEl.textContent = "That username is already taken."; return; }
+  USERS[username] = { passwordHash: simpleHash(password), role: "user" };
+  await saveShared("wdtppll:users", USERS);
+  currentUser = username;
+  await savePersonal("wdtppll:session", username);
+  e.target.reset();
+  renderAll();
+  switchTab("account");
+});
+
+document.getElementById("login-form").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const errorEl = document.getElementById("login-error");
+  errorEl.textContent = "";
+  const username = document.getElementById("login-username").value.trim();
+  const password = document.getElementById("login-password").value;
+  const isOwnerLogin = username.toLowerCase() === OWNER_USERNAME.toLowerCase();
+  const user = USERS[username];
+  if(isOwnerLogin && !user){
+
+    USERS[username] = { passwordHash: simpleHash(password), role: "owner" };
+    await saveShared("wdtppll:users", USERS);
+  } else if(!user || user.passwordHash !== simpleHash(password)){
+    errorEl.textContent = "Incorrect username or password.";
+    return;
+  }
+  currentUser = username;
+  await savePersonal("wdtppll:session", username);
+  e.target.reset();
+  renderAll();
+  switchTab("demonlist");
+});
+
+document.getElementById("logout-btn").addEventListener("click", async ()=>{
+  currentUser = null;
+  await savePersonal("wdtppll:session", null);
+  renderAll();
+  switchTab("demonlist");
+});
+
+function renderNavAuth(){
+  const guest = document.getElementById("nav-guest");
+  const userBox = document.getElementById("nav-user");
+  const modNav = document.getElementById("nav-mod");
+  if(currentUser){
+    guest.classList.add("tab-hidden");
+    userBox.classList.remove("tab-hidden");
+    document.getElementById("nav-username").textContent = currentUser;
+    const role = roleOf(currentUser);
+    const badge = document.getElementById("nav-role");
+    badge.textContent = role;
+    badge.className = "role-badge" + (role==="owner"?" owner":role==="mod"?" mod":"");
+    if(isModOrOwner(currentUser)) modNav.classList.remove("tab-hidden");
+    else modNav.classList.add("tab-hidden");
+  } else {
+    guest.classList.remove("tab-hidden");
+    userBox.classList.add("tab-hidden");
+    modNav.classList.add("tab-hidden");
+  }
+}
+
+function renderAccount(){
+  if(!currentUser){ switchTab("login"); return; }
+  document.getElementById("acc-username").textContent = currentUser;
+  document.getElementById("acc-role").textContent = roleOf(currentUser);
+  let points = 0;
+  const mine = RECORDS.filter(r=>r.username===currentUser);
+  const tbody = document.getElementById("acc-submissions");
+  tbody.innerHTML = "";
+  mine.sort((a,b)=>b.id-a.id).forEach(r=>{
+    const d = DEMONS.find(x=>x.id===r.demonId);
+    if(r.status==="approved" && d && r.percent>=d.reqPercent) points += d.points;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${d?escapeHtml(d.name):"?"}</td><td>${r.percent}%</td><td><span class="badge ${r.status.replace(" ","")}">${r.status}</span></td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById("acc-points").textContent = points;
+}
+
+function renderModPanel(){
+  if(!currentUser || !isModOrOwner(currentUser)){ switchTab("demonlist"); return; }
+
+  const queueBody = document.getElementById("queue-body");
+  queueBody.innerHTML = "";
+  const pending = RECORDS.filter(r=>r.status==="submitted").sort((a,b)=>a.id-b.id);
+  if(pending.length===0){
+    queueBody.innerHTML = `<tr><td colspan="6" class="small-note">No pending submissions.</td></tr>`;
+  }
+  for(const r of pending){
+    const d = DEMONS.find(x=>x.id===r.demonId);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${escapeHtml(r.username)}</td><td>${d?escapeHtml(d.name):"?"}</td><td>${r.percent}%</td>
+      <td><a class="link" href="${escapeAttr(r.video)}" target="_blank">video</a></td>
+      <td><span class="badge submitted">submitted</span></td>
+      <td><div class="flex">
+        <div class="button blue small" data-approve="${r.id}">Accept</div>
+        <div class="button red small" data-reject="${r.id}">Deny</div>
+      </div></td>`;
+    queueBody.appendChild(tr);
+  }
+  queueBody.querySelectorAll("[data-approve]").forEach(btn=>{
+    btn.addEventListener("click", ()=>setRecordStatus(parseInt(btn.dataset.approve),"approved"));
+  });
+  queueBody.querySelectorAll("[data-reject]").forEach(btn=>{
+    btn.addEventListener("click", ()=>setRecordStatus(parseInt(btn.dataset.reject),"rejected"));
+  });
+
+  const demBody = document.getElementById("manage-demons-body");
+  demBody.innerHTML = "";
+  [...DEMONS].sort((a,b)=>a.position-b.position).forEach(d=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>#${d.position}</td><td>${escapeHtml(d.name)}</td><td>${d.points}</td><td>${d.reqPercent}%</td>
+      <td><div class="button white small" data-edit="${d.id}">Edit</div></td>`;
+    demBody.appendChild(tr);
+  });
+  demBody.querySelectorAll("[data-edit]").forEach(btn=>{
+    btn.addEventListener("click", ()=>openDemonModal(parseInt(btn.dataset.edit)));
+  });
+
+  const ownerWrap = document.getElementById("owner-panel-wrap");
+  if(isOwner(currentUser)){
+    ownerWrap.classList.remove("tab-hidden");
+    const list = document.getElementById("all-users-list");
+    list.innerHTML = "";
+    const entries = Object.entries(USERS);
+    if(entries.length===0) list.innerHTML = "<li class='small-note'>No registered users yet.</li>";
+    entries.forEach(([u,info])=>{
+      const li = document.createElement("li");
+      li.textContent = `${u} — ${info.role}`;
+      list.appendChild(li);
+    });
+  } else {
+    ownerWrap.classList.add("tab-hidden");
+  }
+}
+
+async function setRecordStatus(id, status){
+  const rec = RECORDS.find(r=>r.id===id);
+  if(!rec) return;
+  rec.status = status;
+  await saveShared("wdtppll:records", RECORDS);
+  renderModPanel();
+  renderLeaderboard();
+}
+
+document.getElementById("make-mod-btn").addEventListener("click", async ()=>{
+  if(!isOwner(currentUser)) return;
+  const uname = document.getElementById("role-username").value.trim();
+  if(!USERS[uname]){ alert("No such user."); return; }
+  USERS[uname].role = "mod";
+  await saveShared("wdtppll:users", USERS);
+  renderModPanel();
+  renderTeamPanel();
+});
+document.getElementById("remove-mod-btn").addEventListener("click", async ()=>{
+  if(!isOwner(currentUser)) return;
+  const uname = document.getElementById("role-username").value.trim();
+  if(!USERS[uname]){ alert("No such user."); return; }
+  USERS[uname].role = "user";
+  await saveShared("wdtppll:users", USERS);
+  renderModPanel();
+  renderTeamPanel();
+});
+
+const demonModal = document.getElementById("demon-modal");
+document.getElementById("add-demon-btn").addEventListener("click", ()=>openDemonModal(null));
+document.getElementById("demon-modal-cancel").addEventListener("click", ()=>demonModal.classList.remove("show"));
+
+function openDemonModal(id){
+  document.getElementById("demon-form-error").textContent = "";
+  const deleteBtn = document.getElementById("demon-modal-delete");
+  if(id){
+    const d = DEMONS.find(x=>x.id===id);
+    document.getElementById("demon-modal-title").textContent = "Edit Level";
+    document.getElementById("dm-id").value = d.id;
+    document.getElementById("dm-name").value = d.name;
+    document.getElementById("dm-position").value = d.position;
+    document.getElementById("dm-publisher").value = d.publisher;
+    document.getElementById("dm-video").value = d.video || "";
+    document.getElementById("dm-points").value = d.points;
+    document.getElementById("dm-reqpercent").value = d.reqPercent;
+    deleteBtn.classList.remove("tab-hidden");
+  } else {
+    document.getElementById("demon-modal-title").textContent = "Add Level";
+    document.getElementById("dm-id").value = "";
+    document.getElementById("dm-name").value = "";
+    document.getElementById("dm-position").value = DEMONS.length+1;
+    document.getElementById("dm-publisher").value = "";
+    document.getElementById("dm-video").value = "";
+    document.getElementById("dm-points").value = 10;
+    document.getElementById("dm-reqpercent").value = 100;
+    deleteBtn.classList.add("tab-hidden");
+  }
+  demonModal.classList.add("show");
+}
+
+document.getElementById("demon-modal-delete").addEventListener("click", async ()=>{
+  const id = parseInt(document.getElementById("dm-id").value);
+  if(!id) return;
+  if(!confirm("Delete this level? This cannot be undone.")) return;
+  DEMONS = DEMONS.filter(d=>d.id!==id);
+  await saveShared("wdtppll:demons", DEMONS);
+  demonModal.classList.remove("show");
+  renderAll();
+  renderModPanel();
+});
+
+document.getElementById("demon-form").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  if(!isModOrOwner(currentUser)) return;
+  const id = document.getElementById("dm-id").value;
+  const name = document.getElementById("dm-name").value.trim();
+  const position = parseInt(document.getElementById("dm-position").value);
+  const publisher = document.getElementById("dm-publisher").value.trim();
+  const video = document.getElementById("dm-video").value.trim();
+  const points = parseFloat(document.getElementById("dm-points").value);
+  const reqPercent = parseInt(document.getElementById("dm-reqpercent").value);
+  const errEl = document.getElementById("demon-form-error");
+  if(!name || !publisher || isNaN(position) || isNaN(points) || isNaN(reqPercent)){
+    errEl.textContent = "Please fill out all required fields."; return;
+  }
+  if(id){
+    const d = DEMONS.find(x=>x.id===parseInt(id));
+    Object.assign(d, {name,position,publisher,video,points,reqPercent});
+  } else {
+    const newId = DEMONS.length ? Math.max(...DEMONS.map(d=>d.id))+1 : 1;
+    DEMONS.push({id:newId,name,position,publisher,video,points,reqPercent});
+  }
+  await saveShared("wdtppll:demons", DEMONS);
+  demonModal.classList.remove("show");
+  renderAll();
+  renderModPanel();
+});
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+
+init();
+</script>
+</body>
+</html>
